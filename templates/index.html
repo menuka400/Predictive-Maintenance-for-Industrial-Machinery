@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AeroShield — Predictive Maintenance Dashboard</title>
+    <meta name="description" content="Real-time turbofan engine health monitoring with RF + LLM hybrid classifier">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Controls -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">&#9992;</span>
+                    <span class="logo-text">AeroShield</span>
+                </div>
+                <p class="sidebar-subtitle">Predictive Maintenance</p>
+            </div>
+
+            <div class="control-group">
+                <label for="engine-select">Select Test Engine</label>
+                <div class="custom-select-wrapper">
+                    <select id="engine-select" class="control-input">
+                        <!-- Loaded dynamically -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Analysis Mode</label>
+                <div class="toggle-group">
+                    <button id="mode-static" class="toggle-btn active" data-mode="static">
+                        Static Trajectory
+                    </button>
+                    <button id="mode-simulate" class="toggle-btn" data-mode="simulate">
+                        Real-time Stream
+                    </button>
+                </div>
+            </div>
+
+            <div id="simulation-controls" class="control-group hidden">
+                <label>Simulation Settings</label>
+                <div class="btn-row">
+                    <button id="sim-play-pause" class="btn btn-primary">
+                        <span id="play-icon">&#9654;</span> <span id="play-text">Start</span>
+                    </button>
+                    <button id="sim-reset" class="btn btn-secondary">
+                        &#8635; Reset
+                    </button>
+                </div>
+                <div class="slider-group">
+                    <div class="slider-labels">
+                        <span>Speed</span>
+                        <span id="speed-val">1.0s</span>
+                    </div>
+                    <input type="range" id="sim-speed" min="200" max="2000" step="100" value="1000">
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <p>NASA C-MAPSS FD001</p>
+                <p>RF + LLM Hybrid Classifier</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="main-header">
+                <div>
+                    <h1>Engine Predictive Health Dashboard</h1>
+                    <p class="subtitle">Diagnostic telemetry &amp; anomaly classification for turbofan assets</p>
+                </div>
+                <div id="status-badge-container">
+                    <div id="health-badge" class="badge badge-healthy">
+                        <span class="badge-dot"></span>
+                        <span id="health-status-text">HEALTHY</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Metrics Grid -->
+            <section class="metrics-grid">
+                <div class="card metric-card">
+                    <div class="metric-info">
+                        <span class="metric-title">Telemetry Cycle</span>
+                        <div class="metric-value-row">
+                            <span id="metric-cycle" class="metric-value">0</span>
+                            <span class="metric-unit">/ <span id="metric-total-cycles">0</span></span>
+                        </div>
+                    </div>
+                    <div class="metric-icon cycle-icon">&#128337;</div>
+                </div>
+
+                <div class="card metric-card">
+                    <div class="metric-info">
+                        <span class="metric-title">Random Forest Prob(Bad)</span>
+                        <div class="metric-value-row">
+                            <span id="metric-rf-prob" class="metric-value">0.00</span>
+                        </div>
+                        <div class="progress-bar-wrapper">
+                            <div id="rf-progress" class="progress-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="metric-icon rf-icon">&#129302;</div>
+                </div>
+
+                <div class="card metric-card">
+                    <div class="metric-info">
+                        <span class="metric-title">True RUL Remaining</span>
+                        <div class="metric-value-row">
+                            <span id="metric-true-rul" class="metric-value">N/A</span>
+                            <span class="metric-unit">cycles</span>
+                        </div>
+                    </div>
+                    <div class="metric-icon rul-icon">&#128200;</div>
+                </div>
+
+                <div class="card metric-card col-span-2 shadow-glow" id="llm-verdict-card">
+                    <div class="metric-info">
+                        <div class="llm-header">
+                            <span class="metric-title">LLM Second Opinion (LLaMA-3.1-8B)</span>
+                            <span id="llm-status-tag" class="llm-status-tag">STANDBY</span>
+                        </div>
+                        <p id="llm-reason" class="llm-reason">Select static mode to generate LLM diagnostic verdict.</p>
+                        <div class="llm-confidence-bar">
+                            <span class="label">Confidence</span>
+                            <div class="bar-bg">
+                                <div id="llm-conf-fill" class="bar-fill" style="width: 0%"></div>
+                            </div>
+                            <span id="llm-conf-val" class="val">0%</span>
+                        </div>
+                    </div>
+                    <div class="metric-icon llm-icon">&#129504;</div>
+                </div>
+            </section>
+
+            <!-- Chart Section -->
+            <section class="charts-section">
+                <div class="charts-header">
+                    <h2>Sensor Trends Over Time</h2>
+                    <p class="subtitle">Normalized real-time values (0 - 1) for diagnostic features</p>
+                </div>
+                <div class="charts-grid">
+                    <div class="card chart-card">
+                        <h3>Sensor 2</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="chart-sensor-2"></canvas>
+                        </div>
+                    </div>
+                    <div class="card chart-card">
+                        <h3>Sensor 3</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="chart-sensor-3"></canvas>
+                        </div>
+                    </div>
+                    <div class="card chart-card">
+                        <h3>Sensor 4</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="chart-sensor-4"></canvas>
+                        </div>
+                    </div>
+                    <div class="card chart-card">
+                        <h3>Sensor 7</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="chart-sensor-7"></canvas>
+                        </div>
+                    </div>
+                    <div class="card chart-card">
+                        <h3>Sensor 8</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="chart-sensor-8"></canvas>
+                        </div>
+                    </div>
+                    <div class="card chart-card">
+                        <h3>Sensor 11</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="chart-sensor-11"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>
