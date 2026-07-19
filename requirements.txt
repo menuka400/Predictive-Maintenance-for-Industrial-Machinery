@@ -6,3 +6,5 @@ joblib==1.4.2
 requests==2.32.3
 python-dotenv==1.0.1
 gunicorn==23.0.0
+a2wsgi==1.10.7
+uvicorn==0.32.0

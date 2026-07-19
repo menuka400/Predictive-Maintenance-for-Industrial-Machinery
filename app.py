@@ -6,6 +6,7 @@ import pandas as pd
 from flask import Flask, jsonify, request, render_template
 from sklearn.preprocessing import MinMaxScaler
 import llm_verdict
+from a2wsgi import WSGIMiddleware
 
 # --- ZeroGPU Hack for Hugging Face ---
 import spaces
@@ -14,7 +15,8 @@ def dummy_gpu():
     pass
 # -------------------------------------
 
-app = Flask(__name__)
+flask_app = Flask(__name__)
+app = WSGIMiddleware(flask_app)
 
 # ── Paths ────────────────────────────────────────────────────────────────────
 DATA_PATH = os.path.join(os.path.dirname(__file__), "Dataset")
@@ -88,17 +90,17 @@ def get_model():
 load_and_preprocess_data()
 get_model()
 
-@app.route('/')
+@flask_app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/api/engines')
+@flask_app.route('/api/engines')
 def get_engines():
     _, test_df, _, _ = load_and_preprocess_data()
     engines = sorted(test_df['unit_number'].unique().tolist())
     return jsonify({"engines": engines})
 
-@app.route('/api/engine/<int:engine_id>')
+@flask_app.route('/api/engine/<int:engine_id>')
 def get_engine_data(engine_id):
     _, test_df, rul_df, sensors = load_and_preprocess_data()
     engine_data = test_df[test_df['unit_number'] == engine_id].copy()
@@ -119,7 +121,7 @@ def get_engine_data(engine_id):
         "data": records
     })
 
-@app.route('/api/predict', methods=['GET', 'POST'])
+@flask_app.route('/api/predict', methods=['GET', 'POST'])
 def predict():
     # Support both GET query parameters and POST json payload
     if request.method == 'POST':
@@ -192,5 +194,6 @@ def predict():
     })
 
 if __name__ == '__main__':
+    import uvicorn
     port = int(os.environ.get('PORT', 7860))
-    app.run(debug=False, host='0.0.0.0', port=port)
+    uvicorn.run(app, host='0.0.0.0', port=port)
