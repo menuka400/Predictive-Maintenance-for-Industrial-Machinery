@@ -13,9 +13,10 @@ def load_model():
     """
     Load the trained Random Forest classifier and the expected feature column list.
     """
-    base_dir = os.path.dirname(__file__)
-    model_path = os.path.join(base_dir, "Models", "rf_classifier.pkl")
-    features_path = os.path.join(base_dir, "Models", "feature_cols.pkl")
+    BASE_DIR = os.path.dirname(__file__)
+    model_path = os.path.join(BASE_DIR, "Models", "rf_classifier.pkl")
+    features_path = os.path.join(BASE_DIR, "Models", "feature_cols.pkl")
+    
     clf = joblib.load(model_path)
     feature_cols = joblib.load(features_path)
     return clf, feature_cols

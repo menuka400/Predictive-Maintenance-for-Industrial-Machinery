@@ -3,10 +3,14 @@ import numpy as np
 import os
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report, accuracy_score
+import joblib
 
 # ---- CONFIG ----
-DATA_DIR = os.path.join(os.path.dirname(__file__), "Dataset")
+BASE_DIR = os.path.dirname(__file__)
+DATA_DIR = os.path.join(BASE_DIR, "Dataset")
+MODEL_DIR = os.path.join(BASE_DIR, "Models")
+
 index_names = ['unit_number', 'time_in_cycles']
 setting_names = ['op_setting_1', 'op_setting_2', 'op_setting_3']
 sensor_names = [f'sensor_{i}' for i in range(1, 22)]

@@ -2,9 +2,10 @@ import pandas as pd
 import numpy as np
 import os
 
-# ---- CONFIG ----
-DATA_DIR = r"D:\Predictive Maintenance for Industrial Machinery\Dataset"
+BASE_DIR = os.path.dirname(__file__)
+DATA_DIR = os.path.join(BASE_DIR, "Dataset")
 
+# Define columns according to NASA C-MAPSS dataset
 index_names = ['unit_number', 'time_in_cycles']
 setting_names = ['op_setting_1', 'op_setting_2', 'op_setting_3']
 sensor_names = [f'sensor_{i}' for i in range(1, 22)]

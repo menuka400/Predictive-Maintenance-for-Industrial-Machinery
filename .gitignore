@@ -1,6 +1,19 @@
+# Byte-compiled / optimized / DLL files
 __pycache__/
-.env
-.venv/
-env/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
 venv/
+env/
+ENV/
+
+# Env vars
+.env
+
+# MacOS
 .DS_Store
+
+# Ignore datasets (optional, but good practice if they are too large)
+# For NASA C-MAPSS, they are small enough (~15MB) to include on GitHub,
+# but we will leave them in so Render can use them.

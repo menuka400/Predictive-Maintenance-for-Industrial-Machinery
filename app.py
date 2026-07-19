@@ -16,8 +16,8 @@ from fastapi.responses import HTMLResponse, JSONResponse
 BASE_DIR  = os.path.dirname(__file__)
 DATA_PATH = os.path.join(BASE_DIR, "Dataset")
 TRAIN_FILE = os.path.join(DATA_PATH, "train_FD001.txt")
-TEST_FILE  = os.path.join(DATA_PATH, "test_FD001.txt")
-RUL_FILE   = os.path.join(DATA_PATH, "RUL_FD001.txt")
+TEST_FILE = os.path.join(DATA_PATH, "test_FD001.txt")
+RUL_FILE = os.path.join(DATA_PATH, "RUL_FD001.txt")
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 TEMPLATE   = os.path.join(BASE_DIR, "templates", "index.html")
 
