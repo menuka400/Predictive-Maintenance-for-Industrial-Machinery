@@ -200,12 +200,11 @@ def predict():
         "llm_response": llm_response
     })
 
-# Mount Gradio and Flask together
-app = FastAPI()
-app = gr.mount_gradio_app(app, demo, path="/gradio")
-app.mount("/", WSGIMiddleware(flask_app))
-
 if __name__ == '__main__':
-    import uvicorn
-    port = int(os.environ.get('PORT', 7860))
-    uvicorn.run(app, host='0.0.0.0', port=port)
+    # Let Gradio own port 7860 — it satisfies HF platform checks
+    demo.launch(server_name='0.0.0.0', server_port=7860)
+else:
+    # ASGI app for HF container runtime
+    app = FastAPI()
+    app = gr.mount_gradio_app(app, demo, path="/gradio")
+    app.mount("/", WSGIMiddleware(flask_app))
