@@ -1,3 +1,14 @@
+---
+title: AeroShield Predictive Maintenance
+emoji: 🚀
+colorFrom: blue
+colorTo: indigo
+sdk: gradio
+sdk_version: "4.44.0"
+app_file: app.py
+pinned: false
+python_version: "3.10"
+---
 # AeroShield Predictive Maintenance Dashboard
 
 A predictive maintenance dashboard for turbofan engines using a hybrid Random Forest + LLM (LLaMA-3.1-8B) architecture.
