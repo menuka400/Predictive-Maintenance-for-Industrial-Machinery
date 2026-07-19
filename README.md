@@ -1,13 +1,8 @@
 # AeroShield: Predictive Maintenance Dashboard
 
-## 📖 About
-AeroShield is an AI-powered dashboard that monitors industrial machinery (specifically turbofan engines) and predicts failures before they happen. 
+AeroShield is an AI-powered predictive maintenance dashboard designed for industrial machinery, specifically analyzing turbofan engines using the NASA C-MAPSS dataset. 
 
-**Quick Summary:**
-- **What it does:** Simulates live engine telemetry and predicts remaining useful life.
-- **Machine Learning:** Uses a Random Forest classifier trained on the NASA C-MAPSS dataset.
-- **AI Diagnostics:** Uses the Groq LLM API to explain the engine's health in plain English.
-- **Tech Stack:** Python (Flask), Scikit-Learn, vanilla HTML/CSS/JS, and Chart.js.
+It provides real-time telemetry simulation, uses a Machine Learning model to calculate the probability of imminent engine failure, and integrates a Large Language Model (LLM) to act as an AI diagnostic assistant, providing human-readable verdicts based on the live sensor data.
 
 ## 🧠 Project Mind Map
 
