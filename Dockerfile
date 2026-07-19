@@ -1,18 +1,16 @@
-FROM python:3.10
+FROM python:3.10-slim
 
-RUN useradd -m -u 1000 user
-USER user
+WORKDIR /app
 
-ENV HOME=/home/user \
-    PATH=/home/user/.local/bin:$PATH
-
-WORKDIR $HOME/app
-
-COPY --chown=user . $HOME/app
-
+# Install dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-ENV PORT=7860
+# Copy application files
+COPY . .
+
+# Expose the port (Hugging Face Spaces expects apps to run on port 7860 by default)
 EXPOSE 7860
 
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:7860"]
+# Run the application using gunicorn on port 7860
+CMD ["gunicorn", "-b", "0.0.0.0:7860", "app:app"]
