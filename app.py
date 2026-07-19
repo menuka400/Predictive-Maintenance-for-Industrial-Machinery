@@ -7,6 +7,13 @@ from flask import Flask, jsonify, request, render_template
 from sklearn.preprocessing import MinMaxScaler
 import llm_verdict
 
+# --- ZeroGPU Hack for Hugging Face ---
+import spaces
+@spaces.GPU
+def dummy_gpu():
+    pass
+# -------------------------------------
+
 app = Flask(__name__)
 
 # ── Paths ────────────────────────────────────────────────────────────────────
