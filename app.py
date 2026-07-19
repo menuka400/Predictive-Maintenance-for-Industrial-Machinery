@@ -7,16 +7,23 @@ from flask import Flask, jsonify, request, render_template
 from sklearn.preprocessing import MinMaxScaler
 import llm_verdict
 from a2wsgi import WSGIMiddleware
+from fastapi import FastAPI
+import gradio as gr
+import spaces
 
 # --- ZeroGPU Hack for Hugging Face ---
-import spaces
 @spaces.GPU
 def dummy_gpu():
-    pass
+    return "ok"
+
+demo = gr.Blocks()
+with demo:
+    btn = gr.Button("Init")
+    out = gr.Textbox()
+    btn.click(dummy_gpu, outputs=out)
 # -------------------------------------
 
 flask_app = Flask(__name__)
-app = WSGIMiddleware(flask_app)
 
 # ── Paths ────────────────────────────────────────────────────────────────────
 DATA_PATH = os.path.join(os.path.dirname(__file__), "Dataset")
@@ -192,6 +199,11 @@ def predict():
         "color": combined_results['color'],
         "llm_response": llm_response
     })
+
+# Mount Gradio and Flask together
+app = FastAPI()
+app = gr.mount_gradio_app(app, demo, path="/gradio")
+app.mount("/", WSGIMiddleware(flask_app))
 
 if __name__ == '__main__':
     import uvicorn
