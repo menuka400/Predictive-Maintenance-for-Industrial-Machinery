@@ -1,8 +1,0 @@
-run = "gunicorn -b 0.0.0.0:8080 app:app"
-entrypoint = "app.py"
-
-[nix]
-channel = "stable-23_11"
-
-[env]
-PORT = "8080"
