@@ -1,4 +1,7 @@
 import os
+# Disable Gradio SSR — causes 503 during startup on HF Spaces
+os.environ["GRADIO_SSR_MODE"] = "False"
+
 import json
 import numpy as np
 import pandas as pd
@@ -7,7 +10,7 @@ import llm_verdict
 import gradio as gr
 import spaces
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 # ── Paths ────────────────────────────────────────────────────────────────────
@@ -90,7 +93,7 @@ def dummy_gpu():
     return "ok"
 
 with gr.Blocks(title="AeroShield") as demo:
-    gr.HTML("<script>window.location.replace('/');</script>")
+    gr.HTML('<meta http-equiv="refresh" content="0; url=/dashboard">')
     _btn = gr.Button("Init", visible=False)
     _out = gr.Textbox(visible=False)
     _btn.click(dummy_gpu, outputs=_out)
@@ -100,7 +103,7 @@ demo.queue()
 # ── Mount static files and custom routes on demo.app ─────────────────────────
 demo.app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-@demo.app.get("/", response_class=HTMLResponse)
+@demo.app.get("/dashboard", response_class=HTMLResponse)
 async def index():
     with open(TEMPLATE, "r", encoding="utf-8") as f:
         return HTMLResponse(f.read())
