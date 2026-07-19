@@ -10,9 +10,36 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0
           lfs: true
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: git push --force https://MenukaSL:$HF_TOKEN@huggingface.co/spaces/MenukaSL/aeroshield main
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          
+          # Clone HF space
+          git clone https://MenukaSL:$HF_TOKEN@huggingface.co/spaces/MenukaSL/aeroshield hf_space
+          
+          # Delete old files in HF space to handle deletions
+          find hf_space -mindepth 1 -maxdepth 1 -not -name '.git' -exec rm -rf {} +
+          
+          # Copy files from GitHub repo to HF space
+          rsync -av --exclude='.git' --exclude='hf_space' ./ hf_space/
+          
+          cd hf_space
+          
+          # Track binary files for Hugging Face LFS
+          git lfs install
+          git lfs track "*.pkl"
+          git lfs track "*.pdf"
+          git add .gitattributes
+          
+          # Commit and push
+          git add .
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Sync from GitHub"
+            git push https://MenukaSL:$HF_TOKEN@huggingface.co/spaces/MenukaSL/aeroshield main
+          fi
