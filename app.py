@@ -11,7 +11,6 @@ import gradio as gr
 import spaces
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
 
 # ── Paths ────────────────────────────────────────────────────────────────────
 BASE_DIR  = os.path.dirname(__file__)
@@ -100,13 +99,24 @@ with gr.Blocks(title="AeroShield") as demo:
 
 demo.queue()
 
-# ── Mount static files and custom routes on demo.app ─────────────────────────
-demo.app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-
-@demo.app.get("/dashboard", response_class=HTMLResponse)
-async def index():
+# ── Build combined dashboard HTML (inline CSS + JS so no /static mount needed) ─
+def _build_dashboard_html():
     with open(TEMPLATE, "r", encoding="utf-8") as f:
-        return HTMLResponse(f.read())
+        html = f.read()
+    with open(os.path.join(STATIC_DIR, "style.css"), "r", encoding="utf-8") as f:
+        css = f.read()
+    with open(os.path.join(STATIC_DIR, "app.js"), "r", encoding="utf-8") as f:
+        js = f.read()
+    html = html.replace('<link rel="stylesheet" href="/static/style.css">', f'<style>{css}</style>')
+    html = html.replace('<script src="/static/app.js"></script>', f'<script>{js}</script>')
+    return html
+
+DASHBOARD_HTML = _build_dashboard_html()
+
+# ── Custom routes on demo.app ─────────────────────────────────────────────────
+@demo.app.get("/dashboard", response_class=HTMLResponse)
+async def dashboard():
+    return HTMLResponse(DASHBOARD_HTML)
 
 @demo.app.get("/api/engines")
 async def api_engines():
