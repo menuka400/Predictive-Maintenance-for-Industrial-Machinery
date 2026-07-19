@@ -3,8 +3,8 @@ title: AeroShield Predictive Maintenance
 emoji: 🚀
 colorFrom: blue
 colorTo: indigo
-sdk: gradio
-sdk_version: "5.9.1"
+sdk: docker
+
 app_file: app.py
 pinned: false
 python_version: "3.10"
